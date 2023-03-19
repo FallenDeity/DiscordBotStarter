@@ -14,9 +14,5 @@ def invite_buttons_view(bot: "TemplateBot") -> disnake.ui.View:
         "Support Server": (bot.server_url, "👥"),
     }
     for label, data in buttons_map.items():
-        view.add_item(
-            disnake.ui.Button(
-                style=disnake.ButtonStyle.url, label=label, url=data[0], emoji=data[1]
-            )
-        )
+        view.add_item(disnake.ui.Button(style=disnake.ButtonStyle.url, label=label, url=data[0], emoji=data[1]))
     return view

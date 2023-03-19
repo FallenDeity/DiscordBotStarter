@@ -26,12 +26,8 @@ class Utility(BaseCog):
             all_commands.append(command.qualified_name)
         return all_commands
 
-    @commands.slash_command(
-        name="help", description="Get help about a command or category."
-    )
-    async def help_command(
-        self, inter: disnake.ApplicationCommandInteraction, argument: str | None = None
-    ) -> None:
+    @commands.slash_command(name="help", description="Get help about a command or category.")
+    async def help_command(self, inter: disnake.ApplicationCommandInteraction, argument: str | None = None) -> None:
         """Get help about a command or category.
 
         Parameters
@@ -47,17 +43,11 @@ class Utility(BaseCog):
     @help_command.autocomplete("argument")
     async def help_ac(self, inter: disnake.CommandInteraction, arg: str) -> list[str]:
         bot = inter.bot
-        _list = [
-            cog
-            for cog in bot.cogs
-            if arg.lower() in cog.lower() and cog not in IGNORED_COGS
-        ]
+        _list = [cog for cog in bot.cogs if arg.lower() in cog.lower() and cog not in IGNORED_COGS]
         _list.extend(self.command_names)
         return _list[:25]
 
-    @commands.slash_command(
-        name="clear", description="Clear a certain amount of messages."
-    )
+    @commands.slash_command(name="clear", description="Clear a certain amount of messages.")
     async def clear_command(
         self,
         inter: disnake.ApplicationCommandInteraction,
@@ -105,15 +95,12 @@ class Utility(BaseCog):
         for head, value in {
             f"[Website]({self.bot.website_url})": "Please check out our website for detailed information on our bot.",
             f"[Support Server]({self.bot.server_url})": (
-                "Feel free to check out our official server"
-                " for updates on events and giveaways and more."
+                "Feel free to check out our official server" " for updates on events and giveaways and more."
             ),
         }.items():
             assert embed.description
             embed.description += f"**{head}**\n{value}\n\n"
-        await interaction.edit_original_message(
-            embed=embed, view=invite_buttons_view(self.bot)
-        )
+        await interaction.edit_original_message(embed=embed, view=invite_buttons_view(self.bot))
 
     @commands.slash_command(name="botinfo")
     async def botinfo(self, interaction: disnake.AppCmdInter) -> None:

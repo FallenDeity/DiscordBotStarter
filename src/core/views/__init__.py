@@ -16,12 +16,7 @@ class BaseView(disnake.ui.View):
     interaction: disnake.MessageInteraction
     message: disnake.Message
 
-    def __init__(
-        self,
-        user: disnake.Member | disnake.User = None,
-        *,
-        timeout: float | None = 180.0
-    ):
+    def __init__(self, user: disnake.Member | disnake.User = None, *, timeout: float | None = 180.0):
         super().__init__(timeout=timeout)
         self.user = user
 
@@ -72,9 +67,7 @@ class BaseView(disnake.ui.View):
             view=None,
             attachments=[],
         )
-        await interaction.client.on_error(
-            "view_error", ViewException(error, item, interaction)
-        )
+        await interaction.client.on_error("view_error", ViewException(error, item, interaction))
         await self.on_timeout()
 
 

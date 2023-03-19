@@ -54,9 +54,7 @@ class AnsiBuilder:
         self.text = self.text[:cursor] + text + self.text[cursor:]
 
     def build(self, block: bool = True) -> str:
-        text = (
-            f"\033[{';'.join(str(style) for style in self.styles)}m{self.text}\033[0m"
-        )
+        text = f"\033[{';'.join(str(style) for style in self.styles)}m{self.text}\033[0m"
         return f"```ansi\n{text}```" if block else text
 
     @classmethod

@@ -52,8 +52,10 @@ class ModalException(TemplateException):
         super().__init__(f"Failed to handle modal interaction {interaction}: {error}")
 
     def __str__(self) -> str:
-        return "Sorry but something went wrong. I have notified the developers about this issue." \
-               " Please try again later."
+        return (
+            "Sorry but something went wrong. I have notified the developers about this issue."
+            " Please try again later."
+        )
 
 
 class UknownError(TemplateException):
@@ -117,13 +119,13 @@ class ViewException(TemplateException):
         self.error = error
         self.item = item
         self.interaction = interaction
-        super().__init__(
-            f"Failed to handle view item {item} in interaction {interaction}: {error}"
-        )
+        super().__init__(f"Failed to handle view item {item} in interaction {interaction}: {error}")
 
     def __str__(self) -> str:
-        return "Sorry but something went wrong. I have notified the developers about this issue." \
-               " Please try again later."
+        return (
+            "Sorry but something went wrong. I have notified the developers about this issue."
+            " Please try again later."
+        )
 
 
 class SpamGuilds(TemplateException):
@@ -279,15 +281,9 @@ class BotExceptions(enum.Enum):
                     return str(error)
                 response = response.value.message
                 retry_after = int(getattr(error, "retry_after", 0))
-                formatted_after = (
-                    humanfriendly.format_timespan(retry_after) if retry_after else 0
-                )
-                missing_perms = ", ".join(
-                    [str(x) for x in getattr(error, "missing_permissions", [])]
-                )
-                missing_roles = ", ".join(
-                    [str(x) for x in getattr(error, "missing_roles", [])]
-                )
+                formatted_after = humanfriendly.format_timespan(retry_after) if retry_after else 0
+                missing_perms = ", ".join([str(x) for x in getattr(error, "missing_permissions", [])])
+                missing_roles = ", ".join([str(x) for x in getattr(error, "missing_roles", [])])
                 return response.format(
                     error=error,
                     retry_after=formatted_after,

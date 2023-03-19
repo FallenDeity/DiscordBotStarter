@@ -17,17 +17,14 @@ class Tickets(Table):
         )
 
     async def get_ticket_system(self, guild_id: int) -> TicketSystem | None:
-        data = await self.db.fetchrow(
-            "SELECT * FROM tickets WHERE guild_id = $1", guild_id
-        )
+        data = await self.db.fetchrow("SELECT * FROM tickets WHERE guild_id = $1", guild_id)
         if data is None:
             return None
         return TicketSystem(*data)
 
     async def create_ticket_system(self, data: TicketSystem) -> None:
         await self.db.execute(
-            "INSERT INTO tickets (guild_id, channel_id, archive_channel_id, roles) "
-            "VALUES ($1, $2, $3, $4)",
+            "INSERT INTO tickets (guild_id, channel_id, archive_channel_id, roles) " "VALUES ($1, $2, $3, $4)",
             data.guild_id,
             data.channel_id,
             data.archive_channel_id,

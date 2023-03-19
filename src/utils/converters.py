@@ -8,9 +8,7 @@ __all__: tuple[str, ...] = ("DurationConverter",)
 
 
 class DurationConverter(commands.Converter, datetime.timedelta):
-    async def convert(
-        self, inter: disnake.Interaction, argument: str
-    ) -> datetime.timedelta:
+    async def convert(self, inter: disnake.Interaction, argument: str) -> datetime.timedelta:
         try:
             return datetime.timedelta(seconds=Duration(argument).to_seconds())
         except ValueError:

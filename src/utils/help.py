@@ -32,10 +32,7 @@ class Help:
             Colors.BLUE,
         )
         embeds: list[BaseEmbed] = []
-        page_commands = [
-            cog.get_slash_commands()[x : x + 100]
-            for x in range(0, len(cog.get_slash_commands()), 100)
-        ]
+        page_commands = [cog.get_slash_commands()[x : x + 100] for x in range(0, len(cog.get_slash_commands()), 100)]
         for page in page_commands:
             txt = ""
             for command in page:
@@ -71,9 +68,7 @@ class Help:
         if self.argument is None:
             await self.send_bot_help()
         elif (cog := self.bot.get_cog(self.argument)) is not None:
-            await self.send_cog_help(
-                cog
-            ) if cog.qualified_name not in IGNORED_COGS else None
+            await self.send_cog_help(cog) if cog.qualified_name not in IGNORED_COGS else None
             return
         elif (command := self.bot.get_slash_command(self.argument)) is not None:
             if isinstance(command, commands.InvokableSlashCommand):
@@ -116,9 +111,7 @@ class Help:
         await self.interaction.send(embed=embed, view=view)
         view.message = await self.interaction.original_response()
 
-    async def send_command_help(
-        self, command: commands.InvokableSlashCommand | commands.SubCommand
-    ) -> None:
+    async def send_command_help(self, command: commands.InvokableSlashCommand | commands.SubCommand) -> None:
         embed = (
             BaseEmbed(color=disnake.Color.green(), user=self.interaction.user)
             .set_author(name=f"{command.name.title()} Command")
@@ -129,19 +122,12 @@ class Help:
         embed.description = AnsiBuilder.from_string_to_ansi(
             command.description or "No description provided", Colors.BLUE
         )
-        if (
-            isinstance(command, commands.InvokableSlashCommand)
-            and (o := command.options)
-        ) or (
+        if (isinstance(command, commands.InvokableSlashCommand) and (o := command.options)) or (
             isinstance(command, commands.SubCommand) and (o := command.option.options)
         ):
             txt = " ".join(
-                AnsiBuilder.from_string_to_ansi(
-                    arg.name + ": ", Colors.RED, Styles.BOLD
-                )
-                + AnsiBuilder.from_string_to_ansi(
-                    arg.description.replace("-", "") or "No description", Colors.YELLOW
-                )
+                AnsiBuilder.from_string_to_ansi(arg.name + ": ", Colors.RED, Styles.BOLD)
+                + AnsiBuilder.from_string_to_ansi(arg.description.replace("-", "") or "No description", Colors.YELLOW)
                 for arg in o
             )
             embed.description += "**Command Arguments:**\n" + txt
@@ -150,15 +136,12 @@ class Help:
     async def send_group_help(self, group: commands.SubCommandGroup) -> None:
         embed = BaseEmbed(color=disnake.Color.green(), user=self.interaction.user)
         embed.description = (
-            AnsiBuilder.from_string_to_ansi(group.option.description, Colors.BLUE)
-            + " **Subcommands:**\n"
+            AnsiBuilder.from_string_to_ansi(group.option.description, Colors.BLUE) + " **Subcommands:**\n"
         )
         txt = ""
         for command in group.children.values():
             txt += (
-                AnsiBuilder.from_string_to_ansi(
-                    command.name + ": ", Colors.RED, Styles.BOLD
-                )
+                AnsiBuilder.from_string_to_ansi(command.name + ": ", Colors.RED, Styles.BOLD)
                 + AnsiBuilder.from_string_to_ansi(command.description, Colors.YELLOW)
                 + "\n"
             )

@@ -29,15 +29,11 @@ class TicketCloseView(BaseView):
         style=disnake.ButtonStyle.green,
         custom_id="persistent_view:reopen",
     )
-    async def reopen_ticket(
-        self, _: disnake.Button, interaction: disnake.MessageInteraction
-    ):
+    async def reopen_ticket(self, _: disnake.Button, interaction: disnake.MessageInteraction):
         await interaction.message.edit(view=None)
         for key in interaction.channel.overwrites:
             if isinstance(key, disnake.Member):
-                await interaction.channel.set_permissions(
-                    key, read_messages=True, send_messages=True
-                )
+                await interaction.channel.set_permissions(key, read_messages=True, send_messages=True)
         view = InsideTicketView(self.bot)
         embed = disnake.Embed(
             description=f"<:tick:1001136782508826777> The ticket has been re-opened by {interaction.user.mention}.\n\n"
@@ -53,15 +49,13 @@ class TicketCloseView(BaseView):
         style=disnake.ButtonStyle.gray,
         custom_id="persistent_view:transcript",
     )
-    async def transcript(
-        self, button: disnake.Button, interaction: disnake.MessageInteraction
-    ):
+    async def transcript(self, button: disnake.Button, interaction: disnake.MessageInteraction):
         system = await self.bot.db.tickets.get_ticket_system(interaction.guild.id)
         button.disabled = True
         await interaction.edit_original_response(view=self)
-        archive_channel = self.bot.get_channel(
+        archive_channel = self.bot.get_channel(system.archive_channel_id) or await self.bot.fetch_channel(
             system.archive_channel_id
-        ) or await self.bot.fetch_channel(system.archive_channel_id)
+        )
         embed = disnake.Embed(
             description=f"Preparing channel transcript and sending it to {archive_channel.mention}."
             f" This may take a few seconds...",
@@ -69,9 +63,7 @@ class TicketCloseView(BaseView):
         )
         web_msg = await interaction.channel.send(embed=embed)
         transcript = await chat_exporter.export(interaction.channel, tz_info="UTC")
-        transcript_file = disnake.File(
-            io.BytesIO(transcript.encode()), filename=f"{interaction.channel.name}.html"
-        )
+        transcript_file = disnake.File(io.BytesIO(transcript.encode()), filename=f"{interaction.channel.name}.html")
         await archive_channel.send(f"{interaction.channel.name}", file=transcript_file)
         embed = disnake.Embed(description="✅ Done!", color=disnake.Color.green())
         await web_msg.edit(embed=embed)
@@ -82,13 +74,9 @@ class TicketCloseView(BaseView):
         style=disnake.ButtonStyle.red,
         custom_id="persistent_view:delete",
     )
-    async def delete_ticket(
-        self, _: disnake.Button, interaction: disnake.MessageInteraction
-    ):
+    async def delete_ticket(self, _: disnake.Button, interaction: disnake.MessageInteraction):
         await interaction.message.edit(view=None)
-        embed = disnake.Embed(
-            description="Deleting the ticket in 5 seconds...", color=disnake.Color.red()
-        )
+        embed = disnake.Embed(description="Deleting the ticket in 5 seconds...", color=disnake.Color.red())
         await interaction.send(embed=embed, ephemeral=True)
         await asyncio.sleep(5)
         await interaction.channel.delete()
@@ -100,12 +88,8 @@ class TicketCloseView(BaseView):
         item: disnake.ui.Item[disnake.ui.View],
         interaction: disnake.MessageInteraction,
     ) -> None:
-        await interaction.send(
-            embed=self.bot.embeds.no_embed("Error", str(error)), ephemeral=True
-        )
-        tb = __import__("traceback").format_exception(
-            type(error), error, error.__traceback__
-        )
+        await interaction.send(embed=self.bot.embeds.no_embed("Error", str(error)), ephemeral=True)
+        tb = __import__("traceback").format_exception(type(error), error, error.__traceback__)
         self.bot.logger.error("".join(tb))
         return
 
@@ -128,16 +112,12 @@ class InsideTicketView(BaseView):
         style=disnake.ButtonStyle.red,
         custom_id="persistent_view:close",
     )
-    async def close_ticket(
-        self, button: disnake.Button, interaction: disnake.MessageInteraction
-    ):
+    async def close_ticket(self, button: disnake.Button, interaction: disnake.MessageInteraction):
         button.disabled = True
         await interaction.edit_original_response(view=self)
         for key in interaction.channel.overwrites:
             if isinstance(key, disnake.Member):
-                await interaction.channel.set_permissions(
-                    key, read_messages=False, send_messages=False
-                )
+                await interaction.channel.set_permissions(key, read_messages=False, send_messages=False)
         view = TicketCloseView(self.bot)
         embed = disnake.Embed(
             description=f"<:tick:1001136782508826777> The ticket has been closed by {interaction.user.mention}.\n\n"
@@ -155,12 +135,8 @@ class InsideTicketView(BaseView):
         item: disnake.ui.Item[disnake.ui.View],
         interaction: disnake.MessageInteraction,
     ) -> None:
-        await interaction.send(
-            embed=self.bot.embeds.no_embed("Error", str(error)), ephemeral=True
-        )
-        tb = __import__("traceback").format_exception(
-            type(error), error, error.__traceback__
-        )
+        await interaction.send(embed=self.bot.embeds.no_embed("Error", str(error)), ephemeral=True)
+        tb = __import__("traceback").format_exception(type(error), error, error.__traceback__)
         self.bot.logger.error("".join(tb))
         return
 
@@ -182,9 +158,7 @@ class TicketCreateView(BaseView):
         custom_id="persistent_view:create",
         emoji="🎫",
     )
-    async def create_ticket(
-        self, _: disnake.Button, interaction: disnake.MessageInteraction
-    ):
+    async def create_ticket(self, _: disnake.Button, interaction: disnake.MessageInteraction):
         system = await self.bot.db.tickets.get_ticket_system(interaction.guild.id)
         for text_channel in interaction.guild.text_channels:
             if interaction.user.name.lower() in text_channel.name:
@@ -195,23 +169,12 @@ class TicketCreateView(BaseView):
                 )
                 return await interaction.send(embed=embed, ephemeral=True)
         manage_roles = [
-            role
-            for role in interaction.guild.roles
-            if role.permissions.manage_roles or role.id in system.roles
+            role for role in interaction.guild.roles if role.permissions.manage_roles or role.id in system.roles
         ]
         overwrites = {
-            interaction.guild.default_role: disnake.PermissionOverwrite(
-                read_messages=False
-            ),
-            interaction.user: disnake.PermissionOverwrite(
-                read_messages=True, send_messages=True
-            ),
-            **{
-                role: disnake.PermissionOverwrite(
-                    read_messages=True, send_messages=True
-                )
-                for role in manage_roles
-            },
+            interaction.guild.default_role: disnake.PermissionOverwrite(read_messages=False),
+            interaction.user: disnake.PermissionOverwrite(read_messages=True, send_messages=True),
+            **{role: disnake.PermissionOverwrite(read_messages=True, send_messages=True) for role in manage_roles},
         }
         channel = await interaction.guild.create_text_channel(
             f"{str(interaction.user)}",
@@ -230,13 +193,9 @@ class TicketCreateView(BaseView):
         embed.set_thumbnail(url=f"{interaction.user.display_avatar}")
         embed.add_field(name="Time Opened", value=f"{create_time}")
         embed.add_field(name="Opened For", value=str(interaction.user))
-        embed.set_footer(
-            text="Please be patient while a staff member gets to this ticket."
-        )
+        embed.set_footer(text="Please be patient while a staff member gets to this ticket.")
         await asyncio.sleep(2)
-        message = await channel.send(
-            f"{interaction.user.mention}", embed=embed, view=view
-        )
+        message = await channel.send(f"{interaction.user.mention}", embed=embed, view=view)
         await message.pin()
 
     @disnake.ui.button(
@@ -245,9 +204,7 @@ class TicketCreateView(BaseView):
         custom_id="persistent_view:cancel",
         emoji="🗑️",
     )
-    async def cancel_ticket(
-        self, _: disnake.Button, interaction: disnake.MessageInteraction
-    ) -> None:
+    async def cancel_ticket(self, _: disnake.Button, interaction: disnake.MessageInteraction) -> None:
         await self.bot.db.tickets.delete_ticket_system(interaction.guild.id)
         embed = disnake.Embed(
             description="✅ Successfully deleted the ticket system.",
@@ -263,11 +220,7 @@ class TicketCreateView(BaseView):
         item: disnake.ui.Item[disnake.ui.View],
         interaction: disnake.MessageInteraction,
     ) -> None:
-        await interaction.send(
-            embed=self.bot.embeds.no_embed("Error", str(error)), ephemeral=True
-        )
-        tb = __import__("traceback").format_exception(
-            type(error), error, error.__traceback__
-        )
+        await interaction.send(embed=self.bot.embeds.no_embed("Error", str(error)), ephemeral=True)
+        tb = __import__("traceback").format_exception(type(error), error, error.__traceback__)
         self.bot.logger.error("".join(tb))
         return

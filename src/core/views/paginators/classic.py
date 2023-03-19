@@ -20,9 +20,7 @@ class Buttons(str, enum.Enum):
 class ClassicPaginator(BaseView):
     _footered: bool
 
-    def __init__(
-        self, user: disnake.Member, *, timeout: float = 180.0, items: list["BaseEmbed"]
-    ):
+    def __init__(self, user: disnake.Member, *, timeout: float = 180.0, items: list["BaseEmbed"]):
         super().__init__(user, timeout=timeout)
         self.page = 0
         self._items = items
@@ -31,9 +29,7 @@ class ClassicPaginator(BaseView):
 
     def set_footer(self) -> None:
         for n, embed in enumerate(self._items, start=1):
-            embed.add_footer(
-                text=f"Page {n}/{len(self._items)}", icon_url=self.user.display_avatar
-            )
+            embed.add_footer(text=f"Page {n}/{len(self._items)}", icon_url=self.user.display_avatar)
         self._footered = True
 
     async def _update_message(
@@ -48,9 +44,7 @@ class ClassicPaginator(BaseView):
         self.first.disabled = self.previous.disabled = self.page == 0
         self.next.disabled = self.last.disabled = self.page == len(self._items) - 1
 
-    @disnake.ui.button(
-        style=disnake.ButtonStyle.blurple, emoji=str(Buttons.FIRST.value)
-    )
+    @disnake.ui.button(style=disnake.ButtonStyle.blurple, emoji=str(Buttons.FIRST.value))
     async def first(
         self,
         _button: disnake.ui.Button[disnake.ui.View],
@@ -59,9 +53,7 @@ class ClassicPaginator(BaseView):
         self.page = 0
         await self._update_message(interaction)
 
-    @disnake.ui.button(
-        style=disnake.ButtonStyle.blurple, emoji=str(Buttons.PREVIOUS.value)
-    )
+    @disnake.ui.button(style=disnake.ButtonStyle.blurple, emoji=str(Buttons.PREVIOUS.value))
     async def previous(
         self,
         _button: disnake.ui.Button[disnake.ui.View],

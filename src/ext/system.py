@@ -6,8 +6,7 @@ import typing as t
 import disnake
 from disnake.ext import commands, tasks
 
-from src.core.errors import (BotExceptions, DeveloperOnly, ExceptionResponse,
-                             SpamGuilds)
+from src.core.errors import BotExceptions, DeveloperOnly, ExceptionResponse, SpamGuilds
 from src.core.views.paginators import ClassicPaginator
 from src.core.views.url_buttons import invite_buttons_view
 from src.utils.ansi import Colors
@@ -51,9 +50,7 @@ class System(BaseCog):
     @tasks.loop(seconds=10)
     async def _update_status(self) -> None:
         await self.bot.wait_until_ready()
-        message = next(self._activity_message).format(
-            guilds=len(self.bot.guilds), users=len(self.bot.users)
-        )
+        message = next(self._activity_message).format(guilds=len(self.bot.guilds), users=len(self.bot.users))
         await self.bot.change_presence(
             activity=disnake.Activity(
                 name=f"{message} | Use /help",
@@ -63,9 +60,7 @@ class System(BaseCog):
 
     async def _load_channel(self) -> disnake.TextChannel:
         if self._log_channel is None:
-            channel = self.bot.get_channel(
-                CHANNELS.LOGS
-            ) or await self.bot.fetch_channel(CHANNELS.LOGS)
+            channel = self.bot.get_channel(CHANNELS.LOGS) or await self.bot.fetch_channel(CHANNELS.LOGS)
             assert isinstance(channel, disnake.TextChannel)
             self._log_channel = channel
         return self._log_channel
@@ -85,9 +80,7 @@ class System(BaseCog):
     @commands.Cog.listener(disnake.Event.user_command_error)
     @commands.Cog.listener(disnake.Event.slash_command_error)
     @commands.Cog.listener(disnake.Event.message_command_error)
-    async def handle_error(
-        self, inter: disnake.ApplicationCommandInteraction, error: commands.CommandError
-    ) -> None:
+    async def handle_error(self, inter: disnake.ApplicationCommandInteraction, error: commands.CommandError) -> None:
         if not isinstance(error, commands.CommandOnCooldown):
             inter.application_command.reset_cooldown(inter)
         error_data = BotExceptions.get_response(error)
@@ -96,16 +89,12 @@ class System(BaseCog):
             assert isinstance(error_data, ExceptionResponse)
             desc = self.bot.embeds.ansi(str(error_data.message), Colors.RED)
             await inter.edit_original_message(
-                embed=disnake.Embed(
-                    title=title, description=desc, color=disnake.Color.red()
-                )
+                embed=disnake.Embed(title=title, description=desc, color=disnake.Color.red())
             )
             raise error
         desc = self.bot.embeds.ansi(str(error_data), Colors.RED)
         await inter.edit_original_message(
-            embed=disnake.Embed(
-                title=title, description=desc, colour=disnake.Color.red()
-            )
+            embed=disnake.Embed(title=title, description=desc, colour=disnake.Color.red())
         )
 
     @commands.Cog.listener()
@@ -114,21 +103,10 @@ class System(BaseCog):
         members = len(guild.members)
         bots = sum(1 for member in guild.members if member.bot)
         common_channel_names = ["general", "lounge", "chat", "welcome"]
-        cperms = list(
-            filter(
-                lambda x: x.permissions_for(guild.me).send_messages, guild.text_channels
-            )
-        )
-        cnames = difflib.get_close_matches(
-            [c.name for c in cperms], common_channel_names
-        )
-        channels = [c for c in cperms if c.name in cnames] + [
-            c for c in cperms if c.name not in cnames
-        ]
-        if (
-            SpamGuilds.THRESHOLD > members
-            or (bots / members) >= SpamGuilds.BOT_THRESHOLD
-        ) and self.spam_check:
+        cperms = list(filter(lambda x: x.permissions_for(guild.me).send_messages, guild.text_channels))
+        cnames = difflib.get_close_matches([c.name for c in cperms], common_channel_names)
+        channels = [c for c in cperms if c.name in cnames] + [c for c in cperms if c.name not in cnames]
+        if (SpamGuilds.THRESHOLD > members or (bots / members) >= SpamGuilds.BOT_THRESHOLD) and self.spam_check:
             if channels:
                 await channels[0].send(embed=self.bot.embeds.spam_guild(guild))
             await guild.leave()
@@ -156,9 +134,7 @@ class System(BaseCog):
         description="Execute a python code",
         guild_ids=[GUILD_ID],
     )
-    async def exec(
-        self, inter: disnake.ApplicationCommandInteraction, message: disnake.Message
-    ) -> None:
+    async def exec(self, inter: disnake.ApplicationCommandInteraction, message: disnake.Message) -> None:
         """
         Execute a python code.
 

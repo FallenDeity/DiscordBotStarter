@@ -9,8 +9,7 @@ import disnake
 from disnake.ext import commands
 
 from src.database import Database
-from src.utils.constants import (CHANNELS, EMOJIS, GITHUB, INVITE, PATHS,
-                                 WEBSITE)
+from src.utils.constants import CHANNELS, EMOJIS, GITHUB, INVITE, PATHS, WEBSITE
 from src.utils.embeds import Embeds
 
 from .env import TEMPLATEENV
@@ -54,9 +53,7 @@ class TemplateBot(commands.InteractionBot):
     async def log_error(self, message: str) -> None:
         tb = traceback.format_exc()
         self.logger.error(f"{message}\n{tb}")
-        channel = self.get_channel(int(CHANNELS.LOGS)) or await self.fetch_channel(
-            int(CHANNELS.LOGS)
-        )
+        channel = self.get_channel(int(CHANNELS.LOGS)) or await self.fetch_channel(int(CHANNELS.LOGS))
         try:
             assert isinstance(channel, disnake.TextChannel)
             embeds = self.embeds.build_error_embed(title=message, description=tb)
@@ -66,19 +63,13 @@ class TemplateBot(commands.InteractionBot):
         except Exception as e:
             self.logger.error(f"Failed to send the error log.\n{e}\n{tb}")
 
-    async def on_error(
-        self, event_method: str, *_args: t.Any, **_kwargs: t.Any
-    ) -> None:
+    async def on_error(self, event_method: str, *_args: t.Any, **_kwargs: t.Any) -> None:
         await self.log_error(f"An error occurred in {event_method}.")
 
     def _auto_setup(self, path: str) -> None:
         module = importlib.import_module(path)
         for name, obj in inspect.getmembers(module):
-            if (
-                inspect.isclass(obj)
-                and issubclass(obj, commands.Cog)
-                and name != "BaseCog"
-            ):
+            if inspect.isclass(obj) and issubclass(obj, commands.Cog) and name != "BaseCog":
                 self.add_cog(obj(self))
                 self.logger.info(f"Loaded {name} cog.")
 
@@ -100,9 +91,7 @@ class TemplateBot(commands.InteractionBot):
     async def on_ready(self) -> None:
         self.logger.flair(f"Logged in as {self.user} ({self.user.id})")
 
-    async def on_application_command(
-        self, interaction: disnake.ApplicationCommandInteraction
-    ) -> None:
+    async def on_application_command(self, interaction: disnake.ApplicationCommandInteraction) -> None:
         await interaction.response.defer()
         await self.process_application_commands(interaction)
 

@@ -1,8 +1,7 @@
 import disnake
 from disnake.ext import commands
 
-from src.core.views.ticket import (InsideTicketView, TicketCloseView,
-                                   TicketCreateView)
+from src.core.views.ticket import InsideTicketView, TicketCloseView, TicketCreateView
 from src.database.models import TicketSystem
 
 from . import BaseCog
@@ -46,19 +45,13 @@ class Tickets(BaseCog):
         system = await self.bot.db.tickets.get_ticket_system(inter.guild.id)
         if system is not None:
             raise commands.BadArgument("A ticket system already exists")
-        roles = [
-            role.id for role in inter.guild.roles if role.permissions.manage_channels
-        ]
+        roles = [role.id for role in inter.guild.roles if role.permissions.manage_channels]
         system = TicketSystem(inter.guild.id, channel.id, archive_channel.id, roles)
         await self.bot.db.tickets.create_ticket_system(system)
         await inter.edit_original_response(
-            embed=self.bot.embeds.yes_embed(
-                "Created ticket system", "The ticket system has been created"
-            )
+            embed=self.bot.embeds.yes_embed("Created ticket system", "The ticket system has been created")
         )
-        await archive_channel.set_permissions(
-            inter.guild.default_role, read_messages=False
-        )
+        await archive_channel.set_permissions(inter.guild.default_role, read_messages=False)
         await channel.send(
             embed=self.bot.embeds.ticket_embed(inter.guild),
             view=TicketCreateView(self.bot),

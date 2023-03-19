@@ -51,9 +51,7 @@ class MenuPaginator(ClassicPaginator):
         *,
         timeout: float = 180.0,
         bot: t.Optional["TemplateBot"] = None,
-        items: dict[
-            str, list["BaseEmbed"]
-        ],  # pyright: reportIncompatibleMethodOverride=false
+        items: dict[str, list["BaseEmbed"]],  # pyright: reportIncompatibleMethodOverride=false
     ) -> "MenuPaginator":
         assert isinstance(inter.author, disnake.Member)
         assert isinstance(items, dict)
@@ -75,9 +73,7 @@ class CategorySelect(disnake.ui.StringSelect["BaseView"]):
         options = []
         for category in categories:
             emoji = self.paginator.bot.emoji(category) if self.paginator.bot else None
-            options.append(
-                disnake.SelectOption(label=category, value=category, emoji=emoji)
-            )
+            options.append(disnake.SelectOption(label=category, value=category, emoji=emoji))
         super().__init__(
             placeholder=placeholder,
             options=options,
@@ -113,18 +109,12 @@ class MenuFilePaginator(MenuPaginator):
         _cache_category = self._cache.get(self.category, {})
         if self.page in _cache_category:
             embed.set_image(url=_cache_category[self.page])
-            await interaction.edit_original_response(
-                embed=embed, view=self, attachments=[]
-            )
+            await interaction.edit_original_response(embed=embed, view=self, attachments=[])
             return
         file = embed.file
         embed.set_image(url=f"attachment://{file.filename}")
-        message = await interaction.edit_original_response(
-            embed=embed, files=[file], view=self
-        )
-        self._cache.setdefault(self.category, {})[self.page] = str(
-            message.embeds[0].image.url
-        )
+        message = await interaction.edit_original_response(embed=embed, files=[file], view=self)
+        self._cache.setdefault(self.category, {})[self.page] = str(message.embeds[0].image.url)
 
     async def on_timeout(self) -> None:
         self._disable()
@@ -140,9 +130,7 @@ class MenuFilePaginator(MenuPaginator):
         *,
         timeout: int = 180,
         bot: t.Optional["TemplateBot"] = None,
-        items: dict[
-            str, list["BaseEmbed"]
-        ],  # pyright: reportIncompatibleMethodOverride=false
+        items: dict[str, list["BaseEmbed"]],  # pyright: reportIncompatibleMethodOverride=false
     ) -> "MenuFilePaginator":
         assert isinstance(inter.author, disnake.Member)
         assert isinstance(items, dict)

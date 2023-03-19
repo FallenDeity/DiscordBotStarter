@@ -97,23 +97,17 @@ class Embeds:
         )
         embed.add_field(
             name="Owner",
-            value=self.ansi.from_string_to_ansi(
-                f"{guild.owner} ({guild.owner_id})", Colors.RED
-            ),
+            value=self.ansi.from_string_to_ansi(f"{guild.owner} ({guild.owner_id})", Colors.RED),
             inline=True,
         )
         embed.add_field(
             name="Members",
-            value=self.ansi.from_string_to_ansi(
-                f"{guild.member_count}", Colors.MAGENTA
-            ),
+            value=self.ansi.from_string_to_ansi(f"{guild.member_count}", Colors.MAGENTA),
             inline=True,
         )
         embed.add_field(
             name="Created at",
-            value=self.ansi.from_string_to_ansi(
-                f"{guild.created_at.strftime('%d/%m/%Y %H:%M:%S')}", Colors.CYAN
-            ),
+            value=self.ansi.from_string_to_ansi(f"{guild.created_at.strftime('%d/%m/%Y %H:%M:%S')}", Colors.CYAN),
             inline=True,
         )
         embed.set_thumbnail(url=guild.icon)
@@ -177,9 +171,7 @@ class Embeds:
         ]
 
     async def ping_embed(self) -> disnake.Embed:
-        bot_ = self.ansi.from_string_to_ansi(
-            f"Bot: {self.bot.latency * 1000:.2f}ms", Colors.CYAN, Styles.BOLD
-        )
+        bot_ = self.ansi.from_string_to_ansi(f"Bot: {self.bot.latency * 1000:.2f}ms", Colors.CYAN, Styles.BOLD)
         db_ = self.ansi.from_string_to_ansi(
             f"Database: {await self.bot.db.ping()*1000:.2f}ms",
             Colors.MAGENTA,
@@ -210,7 +202,5 @@ class Embeds:
             icon_url=guiild.icon,
         )
         embed.set_thumbnail(url="https://i.imgur.com/iJFFLJ8.png")
-        embed.set_image(
-            url="https://www.appnovation.com/sites/default/files/2020-01/Blog-Hero-1440x600_2.png"
-        )
+        embed.set_image(url="https://www.appnovation.com/sites/default/files/2020-01/Blog-Hero-1440x600_2.png")
         return embed

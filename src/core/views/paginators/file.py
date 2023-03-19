@@ -12,9 +12,7 @@ __all__: tuple[str, ...] = ("FilePaginator",)
 
 
 class FilePaginator(ClassicPaginator):
-    def __init__(
-        self, user: disnake.Member, *, timeout: float = 180.0, items: list["BaseEmbed"]
-    ):
+    def __init__(self, user: disnake.Member, *, timeout: float = 180.0, items: list["BaseEmbed"]):
         super().__init__(user, timeout=timeout, items=items)
         self._cache: dict[int, str] = {}
 
@@ -27,9 +25,7 @@ class FilePaginator(ClassicPaginator):
         if (file := self._cache.get(self.page)) is None:
             file = embed.file
             embed.set_image(url=f"attachment://{file.filename}")
-            message = await interaction.edit_original_response(
-                embed=embed, attachments=[], view=self, file=file
-            )
+            message = await interaction.edit_original_response(embed=embed, attachments=[], view=self, file=file)
             self._cache[self.page] = str(message.embeds[0].image.url)
             return
         embed.set_image(url=file)

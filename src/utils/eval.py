@@ -24,9 +24,7 @@ class Eval:
         if isinstance(body[-1], ast.With):
             self.add_returns(body[-1].body)
 
-    async def f_eval(
-        self, *, code: str, renv: dict[str, typing.Any]
-    ) -> tuple[str, str]:
+    async def f_eval(self, *, code: str, renv: dict[str, typing.Any]) -> tuple[str, str]:
         """
         Evaluates the code in the bot's namespace.
         :param code: The code to evaluate.

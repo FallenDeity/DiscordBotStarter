@@ -35,6 +35,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 htmlcov/
 .tox/
+logs/
 .nox/
 .coverage
 .coverage.*
@@ -82,8 +83,11 @@ dmypy.json
 .pyre/
 .pytype/
 cython_debug/
-.idea/
-.vscode/
-logs/
 .ruff_cache/
+.gitignore
+.pre-commit-config.yaml
+.git/
+.github/
+README.md
 poetry.lock
+LICENSE

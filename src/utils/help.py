@@ -1,19 +1,17 @@
 import dataclasses
-import typing
+import typing as t
 
 import disnake
 from disnake.ext import commands
 
 from src.core.views.paginators import ClassicPaginator, MenuPaginator
+from src.ext import BaseCog
 
 from .ansi import AnsiBuilder, Colors, Styles
 from .embeds import BaseEmbed
 
-if typing.TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from src import TemplateBot
-
-
-IGNORED_COGS: tuple[str, ...] = ("System",)
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -23,7 +21,7 @@ class Help:
 
     @property
     def bot(self) -> "TemplateBot":
-        return typing.cast("TemplateBot", self.interaction.client)
+        return t.cast("TemplateBot", self.interaction.client)
 
     def create_cog_help(self, cog: commands.Cog) -> list[BaseEmbed]:
         desc = AnsiBuilder.from_string_to_ansi(
@@ -55,20 +53,11 @@ class Help:
 
         return embeds
 
-    def get_usual_buttons(self) -> list[disnake.ui.Button[None]]:
-        return [
-            disnake.ui.Button(style=disnake.ButtonStyle.link, label=label, url=url)
-            for label, url in {
-                "Invite Bot": self.bot.invite_url,
-                "Support Server": self.bot.server_url,
-            }.items()
-        ]
-
     async def send_help(self) -> None:
         if self.argument is None:
             await self.send_bot_help()
-        elif (cog := self.bot.get_cog(self.argument)) is not None:
-            await self.send_cog_help(cog) if cog.qualified_name not in IGNORED_COGS else None
+        elif (cog := t.cast(BaseCog | None, self.bot.get_cog(self.argument))) is not None:
+            await self.send_cog_help(cog) if not cog.hidden else None
             return
         elif (command := self.bot.get_slash_command(self.argument)) is not None:
             if isinstance(command, commands.InvokableSlashCommand):
@@ -98,7 +87,8 @@ class Help:
         ).set_thumbnail(bot_user.display_avatar)
         selectors: dict[str, list[BaseEmbed]] = {}
         for cog in self.bot.cogs.values():
-            if cog.qualified_name in IGNORED_COGS:
+            cog = t.cast(BaseCog, cog)
+            if cog.hidden:
                 continue
             txt = AnsiBuilder.from_string_to_ansi(
                 ", ".join(command.name for command in cog.get_slash_commands()),
@@ -107,7 +97,6 @@ class Help:
             embed.add_field(cog.qualified_name + " Commands", txt, inline=False)
             selectors[cog.qualified_name] = self.create_cog_help(cog)
         view = MenuPaginator(user, items={"Home": [embed]} | selectors)
-        [view.add_item(comp) for comp in self.get_usual_buttons()]
         await self.interaction.send(embed=embed, view=view)
         view.message = await self.interaction.original_response()
 
@@ -157,5 +146,4 @@ class Help:
             user,
             items=embeds,
         )
-        [view.add_item(comp) for comp in self.get_usual_buttons()]
         await self.interaction.send(embed=embeds[0], view=view)

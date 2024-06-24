@@ -46,9 +46,15 @@ class ViewTimeout(TemplateException):
 
 
 class ModalException(TemplateException):
-    def __init__(self, error: Exception, interaction: disnake.ModalInteraction) -> None:
+    def __init__(
+        self,
+        error: Exception,
+        interaction: disnake.ModalInteraction,
+        message: str = "Sorry but something went wrong. I have notified the developers about this issue.",
+    ) -> None:
         self.error = error
         self.interaction = interaction
+        self.message = message
         super().__init__(f"Failed to handle modal interaction {interaction}: {error}")
 
     def __str__(self) -> str:
@@ -115,10 +121,12 @@ class ViewException(TemplateException):
         error: Exception,
         item: disnake.ui.Item[disnake.ui.View],
         interaction: disnake.MessageInteraction,
+        message: str = "Sorry but something went wrong. I have notified the developers about this issue.",
     ) -> None:
         self.error = error
         self.item = item
         self.interaction = interaction
+        self.message = message
         super().__init__(f"Failed to handle view item {item} in interaction {interaction}: {error}")
 
     def __str__(self) -> str:

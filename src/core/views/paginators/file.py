@@ -44,7 +44,7 @@ class FilePaginator(ClassicPaginator):
         inter: disnake.ApplicationCommandInteraction,
         *,
         timeout: float = 180.0,
-        items: list["BaseEmbed"],  # pyright: reportIncompatibleMethodOverride=false
+        items: list["BaseEmbed"],
     ) -> "FilePaginator":
         assert isinstance(inter.author, disnake.Member)
         paginator = cls(inter.author, timeout=timeout, items=items)

@@ -10,5 +10,10 @@ __all__: tuple[str, ...] = ("BaseCog",)
 
 
 class BaseCog(commands.Cog):
+    hidden: bool
+
     def __init__(self, bot: "TemplateBot") -> None:
         self.bot = bot
+
+    def __init_subclass__(cls, hidden: bool = False) -> None:
+        cls.hidden = hidden

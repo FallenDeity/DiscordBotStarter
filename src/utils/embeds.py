@@ -1,11 +1,9 @@
 import io
-import random
 import typing as t
 
 import disnake
 
 from src.core.errors import SpamGuilds
-from src.utils.constants import TIPS
 
 from .ansi import AnsiBuilder, BackgroundColors, Colors, Styles
 
@@ -21,7 +19,6 @@ User = disnake.Member | disnake.User | disnake.ClientUser
 Asset = disnake.Asset | str | None
 
 
-# extend disnake.Embed class to add some useful methods
 class BaseEmbed(disnake.Embed):
     def __init__(
         self,
@@ -29,7 +26,6 @@ class BaseEmbed(disnake.Embed):
         user: User | None = None,
         raw: io.BytesIO | None = None,
         file: disnake.File | None = None,
-        tips: bool = True,
         **kwargs: t.Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -37,8 +33,6 @@ class BaseEmbed(disnake.Embed):
         self._raw = raw
         self.user = user
         self.timestamp = disnake.utils.utcnow()
-        if tips:
-            self.set_footer(text=f"{random.choice(TIPS)}", icon_url=user.display_avatar)
 
     def add_footer(self, *, text: str, icon_url: Asset = None) -> "BaseEmbed":
         text = f"{text} | {self.footer.text}" if self.footer.text else text
@@ -142,7 +136,6 @@ class Embeds:
                         Template Bot for ticket, moderation, fun, and more!
                         """,
             color=disnake.Color.yellow(),
-            url=self.bot.website_url,
         )
         embed.set_thumbnail(url=self.bot.user.display_avatar)
         embed.add_footer(text=f"Thanks for adding me to {guild.name}!")
@@ -184,23 +177,4 @@ class Embeds:
         )
         embed.timestamp = disnake.utils.utcnow()
         embed.set_thumbnail(url=self.bot.user.display_avatar)
-        return embed
-
-    @staticmethod
-    def ticket_embed(guiild: disnake.Guild) -> disnake.Embed:
-        embed = disnake.Embed(
-            title="🎫 Support Ticket",
-            color=disnake.Color.blue(),
-        )
-        embed.set_footer(
-            text="➣ Opening tickets without reason will result in penalties.\n"
-            "➣ Mention the reason you opened the ticket for right away.\n"
-            "➣ Specify the reason descriptively.\n"
-            "➣ Do not ping any staff or developers."
-            " Wait patiently as all tickets will be attended.\n\n\n"
-            "Click the button below to open a ticket.",
-            icon_url=guiild.icon,
-        )
-        embed.set_thumbnail(url="https://i.imgur.com/iJFFLJ8.png")
-        embed.set_image(url="https://www.appnovation.com/sites/default/files/2020-01/Blog-Hero-1440x600_2.png")
         return embed

@@ -1,5 +1,4 @@
 import enum
-import pathlib
 import typing as t
 
 import attrs
@@ -8,14 +7,25 @@ __all__: tuple[str, ...] = (
     "CHANNELS",
     "PATHS",
     "DEVELOPERS",
-    "TIPS",
     "EMOJIS",
     "GUILD_ID",
     "BOT_ID",
-    "INVITE",
-    "WEBSITE",
-    "GITHUB",
+    "ERRORS",
 )
+
+
+ERRORS: tuple[str, ...] = (
+    "Oops! Something went wrong.",
+    "Oh no! An error occurred.",
+    "Sorry, an error occurred.",
+    "Whoops, there was a problem.",
+    "Oof, an error has occurred.",
+    "Yikes, something went wrong.",
+    "Bummer, there was a problem.",
+    "Shoot, something went wrong.",
+)
+
+T = t.TypeVar("T")
 
 
 class BaseEnum(enum.Enum):
@@ -34,26 +44,22 @@ class Emoji:
         return f"<{animated}:_:{self.id}>"
 
 
-DEVELOPERS: set[int] = {656838010532265994}
-TIPS: tuple[str] = ("Add some cool tips here!",)
-GUILD_ID: int = 1075101106369216583
-BOT_ID: int = 925605671997681674
-INVITE: str = "rGM9tDxR6Y"
-WEBSITE: str = ""
-GITHUB: str = ""
+DEVELOPERS: set[int] = {656838010532265994, 923636820019916850}
+GUILD_ID: int = 1254711706157060146
+BOT_ID: int = 1254713762720645170
 
 
 class CHANNELS(enum.IntEnum):
     LOGS = 1085144172064948285
 
 
-class PATHS(BaseEnum):
-    BASE = pathlib.Path("src")
-    BIN = pathlib.Path("src/bin")
-    DATABASE = pathlib.Path("src/database")
-    EXTENSIONS = pathlib.Path("src/ext")
-    MIGRATIONS = pathlib.Path("src/bin/migrations")
-    TABLES = pathlib.Path("src/database/tables")
+class PATHS(str, BaseEnum):
+    BASE = "src"
+    BIN = "src/bin"
+    DATABASE = "src/database"
+    EXTENSIONS = "src/ext"
+    MIGRATIONS = "src/bin/migrations"
+    TABLES = "src/database/tables"
 
 
 class EMOJIS(BaseEnum):

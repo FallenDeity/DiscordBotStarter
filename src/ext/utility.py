@@ -3,13 +3,9 @@ import typing
 import disnake
 from disnake.ext import commands
 
-from src.core.views.url_buttons import invite_buttons_view
-from src.utils.ansi import Colors, Styles
 from src.utils.help import Help
 
 from . import BaseCog
-
-IGNORED_COGS: tuple[str, ...] = ("System",)
 
 
 class Utility(BaseCog):
@@ -19,7 +15,7 @@ class Utility(BaseCog):
     def command_names(self) -> list[str]:
         all_commands: list[str] = []
         for command in self.bot.slash_commands:
-            if command.cog_name in IGNORED_COGS:
+            if typing.cast(BaseCog, command.cog).hidden:
                 continue
             for subcommand in command.children.values():
                 all_commands.append(subcommand.qualified_name)
@@ -43,7 +39,7 @@ class Utility(BaseCog):
     @help_command.autocomplete("argument")
     async def help_ac(self, inter: disnake.CommandInteraction, arg: str) -> list[str]:
         bot = inter.bot
-        _list = [cog for cog in bot.cogs if arg.lower() in cog.lower() and cog not in IGNORED_COGS]
+        _list = [cog for cog in bot.cogs if arg.lower() in cog.lower() and not typing.cast(BaseCog, cog).hidden]
         _list.extend(self.command_names)
         return _list[:25]
 
@@ -51,7 +47,7 @@ class Utility(BaseCog):
     async def clear_command(
         self,
         inter: disnake.ApplicationCommandInteraction,
-        amount: commands.Range[1, 100],
+        amount: commands.Range[int, 1, 100],
     ) -> None:
         """Clear a certain amount of messages.
 
@@ -62,7 +58,8 @@ class Utility(BaseCog):
         amount : int
             The amount of messages to clear.
         """
-        await inter.channel.purge(limit=typing.cast(int, amount) + 1)
+        channel: disnake.TextChannel = typing.cast(disnake.TextChannel, inter.channel)
+        await channel.purge(limit=amount + 1)
         embed = self.bot.embeds.yes_embed("Purged", f"Purged {amount} messages.")
         await inter.send(embed=embed, ephemeral=True)
 
@@ -77,44 +74,4 @@ class Utility(BaseCog):
             The interaction that invoked this command.
         """
         embed = await self.bot.embeds.ping_embed()
-        await interaction.edit_original_response(embed=embed)
-
-    @commands.slash_command(name="invite")
-    async def invite(self, interaction: disnake.AppCmdInter) -> None:
-        """
-        Returns the bot's invite and related urls.
-        """
-        embed = (
-            disnake.Embed(
-                color=disnake.Color.red(),
-                description=f"Thank you for using **{self.bot.user.name}**\n\n",
-            )
-            .set_author(name=f"Invite {self.bot.user.name}")
-            .set_thumbnail(self.bot.user.avatar)
-        )
-        for head, value in {
-            f"[Website]({self.bot.website_url})": "Please check out our website for detailed information on our bot.",
-            f"[Support Server]({self.bot.server_url})": (
-                "Feel free to check out our official server" " for updates on events and giveaways and more."
-            ),
-        }.items():
-            assert embed.description
-            embed.description += f"**{head}**\n{value}\n\n"
-        await interaction.edit_original_message(embed=embed, view=invite_buttons_view(self.bot))
-
-    @commands.slash_command(name="botinfo")
-    async def botinfo(self, interaction: disnake.AppCmdInter) -> None:
-        """
-        Information about the bot.
-        """
-        embed = disnake.Embed(
-            color=disnake.Color.red(),
-            description=f"""
-                        {self.bot.embeds.ansi.from_string_to_ansi('Template discord bot. '
-                        'Planned to contain moderation, utility, fun, and music commands. '
-                        , Colors.MAGENTA, Styles.BOLD)}
-                        """,
-        ).set_author(name=self.bot.user.name, icon_url=self.bot.user.display_avatar)
-        embed.add_field(name="Servers", value=len(self.bot.guilds), inline=True)
-        embed.add_field(name="Users", value=len(self.bot.users), inline=True)
         await interaction.edit_original_response(embed=embed)

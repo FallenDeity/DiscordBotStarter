@@ -2,6 +2,7 @@
 
 import importlib
 import inspect
+import pathlib
 import time
 import typing as t
 import uuid
@@ -15,7 +16,7 @@ from .tables import Table
 if t.TYPE_CHECKING:
     from src import TemplateBot
 
-    from .tables import Config, Tickets
+    from .tables import Config
 
 
 __all__: tuple[str, ...] = ("Database",)
@@ -24,13 +25,18 @@ __all__: tuple[str, ...] = ("Database",)
 class Database:
     _pool: asyncpg.Pool | None = None  # type: ignore[reportMissingTypeArgument]
     config: "Config"
-    tickets: "Tickets"
 
     def __init__(self, bot: "TemplateBot") -> None:
         self.bot = bot
 
     async def _create_pool(self) -> None:
-        self._pool = await asyncpg.create_pool(self.bot.config.PGURL)
+        self._pool = await asyncpg.create_pool(
+            user=self.bot.config.PGUSER,
+            password=self.bot.config.PGPASSWORD,
+            database=self.bot.config.PGDATABASE,
+            host=self.bot.config.PGHOST,
+            port=self.bot.config.PGPORT,
+        )
 
     async def setup(self) -> None:
         self.bot.logger.info("Setting up the database...")
@@ -47,7 +53,7 @@ class Database:
 
     async def _setup_extensions(self) -> None:
         self.bot.logger.flair("Setting up the database extensions...")
-        extensions = PATHS.TABLES
+        extensions = pathlib.Path(PATHS.TABLES)
         for file in extensions.glob("*.py"):
             if file.name.startswith("_"):
                 continue
@@ -64,8 +70,8 @@ class Database:
 
     async def _apply_migrations(self) -> None:
         assert self._pool is not None
-        bot_config = await self.config.get_config(BOT_ID)
-        migrations = PATHS.MIGRATIONS
+        bot_config = await self.config.get(BOT_ID)
+        migrations = pathlib.Path(PATHS.MIGRATIONS)
         updates: dict[str, float] = {}
         applied = {str(m) for m in bot_config.migrations}
         for file in migrations.glob("*.sql"):

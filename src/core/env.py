@@ -49,7 +49,11 @@ class Variable:
 
 class Environment:
     TOKEN = Variable(name="TOKEN")
-    PGURL = Variable(name="PGURL")
+    PGUSER = Variable(name="PGUSER")
+    PGPASSWORD = Variable(name="PGPASSWORD")
+    PGDATABASE = Variable(name="PGDATABASE")
+    PGHOST = Variable(name="PGHOST")
+    PGPORT = Variable(name="PGPORT", cast=int)
 
 
 TEMPLATEENV = Environment()

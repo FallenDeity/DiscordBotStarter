@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing as t
 
 import disnake
@@ -45,17 +47,17 @@ class MenuPaginator(ClassicPaginator):
         self._footered = True
 
     @classmethod
-    async def start(
+    async def start(  # type: ignore
         cls,
         inter: disnake.ApplicationCommandInteraction,
         *,
         timeout: float = 180.0,
         bot: t.Optional["TemplateBot"] = None,
-        items: dict[str, list["BaseEmbed"]],  # pyright: reportIncompatibleMethodOverride=false
+        items: dict[str, list["BaseEmbed"]],
     ) -> "MenuPaginator":
         assert isinstance(inter.author, disnake.Member)
         assert isinstance(items, dict)
-        paginator = cls(inter.author, timeout=timeout, items=items, bot=bot)  # type: ignore
+        paginator = cls(inter.author, timeout=timeout, items=items, bot=bot)
         paginator.message = await inter.original_response()
         await paginator._update_message(inter)
         return paginator
@@ -70,7 +72,7 @@ class CategorySelect(disnake.ui.StringSelect["BaseView"]):
         categories: list[str],
     ):
         self.paginator = paginator
-        options = []
+        options: list[disnake.SelectOption] = []
         for category in categories:
             emoji = self.paginator.bot.emoji(category) if self.paginator.bot else None
             options.append(disnake.SelectOption(label=category, value=category, emoji=emoji))
@@ -124,17 +126,17 @@ class MenuFilePaginator(MenuPaginator):
         await self.safe_edit(embed=embed, view=self, attachments=[], file=file)
 
     @classmethod
-    async def start(
+    async def start(  # type: ignore
         cls,
         inter: disnake.ApplicationCommandInteraction,
         *,
         timeout: int = 180,
         bot: t.Optional["TemplateBot"] = None,
-        items: dict[str, list["BaseEmbed"]],  # pyright: reportIncompatibleMethodOverride=false
+        items: dict[str, list["BaseEmbed"]],
     ) -> "MenuFilePaginator":
         assert isinstance(inter.author, disnake.Member)
         assert isinstance(items, dict)
-        paginator = cls(inter.author, timeout=timeout, items=items, bot=bot)  # type: ignore
+        paginator = cls(inter.author, timeout=timeout, items=items, bot=bot)
         paginator.message = await inter.original_response()
         await paginator._update_message(inter)
         return paginator

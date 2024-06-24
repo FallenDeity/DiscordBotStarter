@@ -1,6 +1,7 @@
 import datetime
 import importlib
 import inspect
+import pathlib
 import traceback
 import typing as t
 
@@ -9,7 +10,7 @@ import disnake
 from disnake.ext import commands
 
 from src.database import Database
-from src.utils.constants import CHANNELS, EMOJIS, GITHUB, INVITE, PATHS, WEBSITE
+from src.utils.constants import CHANNELS, EMOJIS, PATHS
 from src.utils.embeds import Embeds
 
 from .env import TEMPLATEENV
@@ -19,7 +20,7 @@ __all__: tuple[str, ...] = ("TemplateBot",)
 
 
 class TemplateBot(commands.InteractionBot):
-    _uptime: datetime.datetime = datetime.datetime.utcnow()
+    _uptime: datetime.datetime = datetime.datetime.utcnow()  # type: ignore
     http_session: aiohttp.ClientSession
     __version__: str = "0.0.1"
     __author__: str = "FallenDeity"
@@ -31,13 +32,12 @@ class TemplateBot(commands.InteractionBot):
             guild_scheduled_events=True,
             guild_typing=True,
             guilds=True,
-            members=True,
         )
         self.db = Database(self)
         self.logger = Logger(name="TemplateBot")
         self.embeds = Embeds(self)
         self.config = TEMPLATEENV
-        super().__init__(intents=intents)
+        super().__init__(intents=intents, reload=True)
 
     @staticmethod
     def emoji(name: str) -> str:
@@ -75,7 +75,7 @@ class TemplateBot(commands.InteractionBot):
 
     def _load_all_extensions(self) -> None:
         self.logger.info("Loading extensions...")
-        extensions = PATHS.EXTENSIONS
+        extensions = pathlib.Path(PATHS.EXTENSIONS)
         for path in extensions.glob("*.py"):
             if path.name.startswith("_"):
                 continue
@@ -84,6 +84,7 @@ class TemplateBot(commands.InteractionBot):
 
     async def close(self) -> None:
         self.logger.info("Closing...")
+        await self.http_session.close()
         await self.db.close()
         await super().close()
         self.logger.info("Closed!")
@@ -113,24 +114,5 @@ class TemplateBot(commands.InteractionBot):
         return super().user
 
     @property
-    def invite_url(self) -> str:
-        return (
-            f"https://discord.com/oauth2/authorize?client_id={self.user.id}"
-            f"&scope=applications.commands%20bot&permissions=277025778760"
-        )
-
-    @property
     def uptime(self) -> float:
-        return (datetime.datetime.utcnow() - self._uptime).total_seconds()
-
-    @property
-    def website_url(self) -> str:
-        return WEBSITE or "https://example.com"
-
-    @property
-    def github_url(self) -> str:
-        return GITHUB or "https://github.com/"
-
-    @property
-    def server_url(self) -> str:
-        return f"https://discord.gg/{INVITE}"
+        return (datetime.datetime.utcnow() - self._uptime).total_seconds()  # type: ignore

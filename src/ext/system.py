@@ -8,9 +8,8 @@ from disnake.ext import commands, tasks
 
 from src.core.errors import BotExceptions, DeveloperOnly, ExceptionResponse, SpamGuilds
 from src.core.views.paginators import ClassicPaginator
-from src.core.views.url_buttons import invite_buttons_view
 from src.utils.ansi import Colors
-from src.utils.constants import CHANNELS, DEVELOPERS, GUILD_ID
+from src.utils.constants import CHANNELS, DEVELOPERS, ERRORS, GUILD_ID
 from src.utils.eval import Eval
 
 from . import BaseCog
@@ -19,7 +18,7 @@ if t.TYPE_CHECKING:
     from src import TemplateBot
 
 
-class System(BaseCog):
+class System(BaseCog, hidden=True):
     """
     Cog containing system commands and bot events for developer use only.
     """
@@ -31,16 +30,7 @@ class System(BaseCog):
             "{users:,} users",
         )
     )
-    _error_titles: tuple[str, ...] = (
-        "Oops! Something went wrong.",
-        "Oh no! An error occurred.",
-        "Sorry, an error occurred.",
-        "Whoops, there was a problem.",
-        "Oof, an error has occurred.",
-        "Yikes, something went wrong.",
-        "Bummer, there was a problem.",
-        "Shoot, something went wrong.",
-    )
+    _error_titles: tuple[str, ...] = ERRORS
     spam_check: bool = False
 
     def __init__(self, bot: "TemplateBot") -> None:
@@ -115,7 +105,6 @@ class System(BaseCog):
         if channels:
             await channels[0].send(
                 embed=self.bot.embeds.welcome_embed(guild),
-                view=invite_buttons_view(self.bot),
             )
         else:
             self.bot.logger.warning(

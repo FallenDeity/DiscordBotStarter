@@ -1,0 +1,40 @@
+services:
+  database:
+    image: postgres:15.2-alpine
+    restart: always
+    profiles:
+      - production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${PGUSER}
+      - POSTGRES_PASSWORD=${PGPASSWORD}
+      - POSTGRES_DB=${PGDATABASE}
+    ports:
+      - "5433:5432"  # Maps the container's port 5432 to the host's port 5433
+  production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: template_bot
+    restart: always
+    depends_on:
+      - database
+    links:
+      - database
+    profiles:
+      - production
+    volumes:
+      - ./logs:/app/logs
+      - ./src:/app/src
+    environment:
+      - TOKEN
+      - PGUSER
+      - PGPASSWORD
+      - PGHOST=host.docker.internal
+      - PGPORT  # Default is 5432
+      - PGDATABASE
+      - PGURL=postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}
+volumes:
+  postgres_data:
+    driver: local
